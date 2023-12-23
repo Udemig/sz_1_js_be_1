@@ -49,7 +49,6 @@ Yapılacak olan özellikler:
 /auth/
 
 
-
 - Websocket topicler ve gelen-giden mesajların listesi:
 
 https://github.com/Udemig/sz_1_js_be_1
