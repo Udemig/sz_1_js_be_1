@@ -46,10 +46,18 @@ Yapılacak olan özellikler:
 /room/delete
 /room/sendMessage
 
-/auth/
+/auth/login
+/auth/register
 
 
 - Websocket topicler ve gelen-giden mesajların listesi:
 
 https://github.com/Udemig/sz_1_js_be_1
 https://github.com/Udemig/sz_1_js_fe_1
+
+
+---------------
+- Şunları inceleyiniz:
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind

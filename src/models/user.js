@@ -13,6 +13,12 @@ const userSchema = new Schema({
     type: String,
     required: [true, "Lütfen e-posta belirtiniz."],
   },
+  firstname: {
+    type: String,
+  },
+  lastname: {
+    type: String,
+  },
   gender: {
     type: String,
     enum: ["male", "female", "prefer_not_to_say"],
@@ -20,4 +26,4 @@ const userSchema = new Schema({
   },
 });
 
-export default mongoose.model("User", userSchema);
+export const User = mongoose.model("User", userSchema);

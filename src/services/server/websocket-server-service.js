@@ -1,9 +1,12 @@
 import uWS from "uWebSockets.js";
-import { bufferToString } from "../utils.js";
+import { bufferToString } from "../../utils.js";
 
 export default class WebsocketServer {
   services = null;
   server = null;
+
+  /* Hangi ws client'ının hangi user'a ait olduğunu burada tutacağız. */
+  clients = [];
 
   constructor(services) {
     this.services = services;
@@ -63,8 +66,8 @@ export default class WebsocketServer {
             bufferToString(message, "utf-8")
           );
 
-          if (message.command === "create_new_room") {
-          } else if (message.command === "join_room") {
+          if (message.command === "auth/login") {
+            // TODO Handle here.
           } else if (message.command === "join_room") {
           } else if (message.command === "join_room") {
           } else if (message.command === "join_room") {

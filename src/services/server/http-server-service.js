@@ -1,3 +1,4 @@
+import cors from "cors";
 import express from "express";
 
 // fs: File System, dosya ve dizinlerle çalışmayı sağlar, nodejs'e gömülü gelir bu yüzden
@@ -16,6 +17,11 @@ export default class HttpServer {
     console.log("Http server instance created.");
     this.services = services;
     this.httpServer = express();
+
+    this.httpServer.use(express.json());
+    this.httpServer.use(
+      cors({ origin: "http://localhost:5173", credentials: true })
+    );
   }
 
   findAllControllerFiles() {
@@ -26,7 +32,7 @@ export default class HttpServer {
     function findControllerFiles(currentDirectory) {
       fs.readdirSync(currentDirectory, { withFileTypes: true }).forEach(
         (currentFile) => {
-          console.log("Controller file: ", currentFile);
+          //console.log("Controller file: ", currentFile);
 
           if (currentFile.isDirectory()) {
             findControllerFiles(currentDirectory + "/" + currentFile.name);
@@ -44,23 +50,23 @@ export default class HttpServer {
 
   async configureHttpServer() {
     const controllerFiles = this.findAllControllerFiles();
-    console.log(">> Controllers", controllerFiles);
+    //console.log(">> Controllers", controllerFiles);
 
     for (let i = 0; i < controllerFiles.length; i++) {
       const controllerFile = controllerFiles[i];
 
       const controllerClass = await import(controllerFile);
-      console.log("----------------------");
-      console.log(">> Ctrl: ", controllerFile);
-      console.log(">> Val :", controllerClass.default);
-      console.log("----------------------");
+      //console.log("----------------------");
+      //console.log(">> Ctrl: ", controllerFile);
+      //console.log(">> Val :", controllerClass.default);
+      //console.log("----------------------");
 
       try {
         // Gelen datanın mutlaka class olduğunu varsayıyoruz.
         const obj = new controllerClass.default(this.services);
         await obj.registerRoutes(this.httpServer);
       } catch (e) {
-        console.log("This file excluding: ", controllerFile);
+        //console.log("This file excluding: ", controllerFile);
       }
     }
   }

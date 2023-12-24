@@ -1,7 +1,8 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import HttpServer from "./services/http-server-service.js";
-import WebsocketServer from "./services/websocket-server-service.js";
+import NodeCache from "node-cache";
+import HttpServer from "./services/server/http-server-service.js";
+import WebsocketServer from "./services/server/websocket-server-service.js";
 
 /* cwd: Current Working Directory, yani projenin başlangıç noktası. */
 dotenv.config({
@@ -15,10 +16,15 @@ dotenv.config({
       mongoConnection: null,
       httpServerService: null,
       websocketService: null,
+      cache: new NodeCache(),
     };
 
     const mongoConnection = await mongoose.connect(
-      process.env.MONGODB_CONNECTION
+      process.env.MONGODB_CONNECTION,
+      {
+        dbName: process.env.DB_NAME,
+        autoCreate: true,
+      }
     );
     console.log("Mongodb connected.");
     services.mongoConnection = mongoConnection;
