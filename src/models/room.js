@@ -8,6 +8,7 @@ const roomSchema = new Schema({
   },
   name: {
     type: String,
+    required: [true, "Oda ismi boş bırakılamaz."],
   },
   visibility: {
     type: String,
@@ -17,6 +18,11 @@ const roomSchema = new Schema({
   maxClient: {
     type: Number,
     default: 0,
+  },
+  peers: {
+    type: [Schema.ObjectId],
+    ref: "User",
+    default: [],
   },
 });
 

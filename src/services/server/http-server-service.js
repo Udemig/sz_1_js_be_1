@@ -22,6 +22,38 @@ export default class HttpServer {
     this.httpServer.use(
       cors({ origin: "http://localhost:5173", credentials: true })
     );
+
+    this.httpServer.use(this.checkAuth.bind(this));
+  }
+
+  checkAuth(req, res, next) {
+    if (req.originalUrl.startsWith("/auth")) {
+      next();
+      return;
+    }
+
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      res.json({
+        status: "error",
+        errorMessage: "Lütfen token belirtiniz.",
+      });
+      return;
+    }
+    const foundUserId = this.services.cache.get("auth_" + token);
+    if (!foundUserId) {
+      res.json({
+        status: "error",
+        errorMessage: "Token geçersiz veya hatalı.",
+      });
+      return;
+    }
+
+    // Burada user id datasını request'e ekleyebiliriz.
+    req.authUserId = foundUserId;
+
+    next();
   }
 
   findAllControllerFiles() {

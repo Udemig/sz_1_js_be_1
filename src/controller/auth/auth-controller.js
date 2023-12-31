@@ -10,15 +10,12 @@ logicleri servis class'larında yazmamız gerekiyor ve bu servisler bağımsız 
 Authentication: doğrulama
 Authorization: yetkilendirme
 
-
-
 */
 
 export default class AuthController extends BaseController {
   routes = {
     "/auth/login": this.login.bind(this),
     "/auth/register": this.register.bind(this),
-    "/auth/logout": this.logout.bind(this),
   };
 
   async login(req, res) {
@@ -45,6 +42,7 @@ export default class AuthController extends BaseController {
     });
 
     if (
+      !foundUser ||
       !bcrypt.compareSync(
         req.body.password + process.env.APP_KEY,
         foundUser.password
@@ -81,6 +79,13 @@ export default class AuthController extends BaseController {
 
     return this.showSuccess(res, {
       token,
+      user: {
+        username: foundUser.username,
+        email: foundUser.email,
+        firstname: foundUser.firstname,
+        lastname: foundUser.lastname,
+        gender: foundUser.gender,
+      },
     });
   }
 
@@ -115,24 +120,5 @@ export default class AuthController extends BaseController {
         username: newUser.username,
       });
     })();
-  }
-
-  logout(req, res) {
-    console.log(">> Incoming auth header:", req.headers.authorization);
-    const token = req.headers.authorization.split(" ")[1];
-
-    if (typeof token === "undefined") {
-      return this.showError(res, "Lütfen token belirtiniz.");
-    }
-    const foundUserId = this.services.cache.get("auth_" + token);
-    if (typeof foundUserId === "undefined") {
-      return this.showError(res, "Token geçersiz veya hatalı.");
-    }
-
-    console.log(">>>  foundUserId:", foundUserId);
-
-    this.services.cache.del("auth_" + token);
-
-    return this.showSuccess(res, null);
   }
 }

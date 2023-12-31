@@ -20,22 +20,6 @@ export default class BaseController {
     });
   }
 
-  checkAuth(req, res) {
-    const token = req.headers.authorization.split(" ")[1];
-
-    if (typeof token === "undefined") {
-      this.showError(res, "Lütfen token belirtiniz.");
-      return false;
-    }
-    const foundUserId = this.services.cache.get("auth_" + token);
-    if (typeof foundUserId === "undefined") {
-      this.showError(res, "Token geçersiz veya hatalı.");
-      return false;
-    }
-
-    return true;
-  }
-
   /* httpServer parametresine express server objesi gelecek. Bu sayede şuanki class için
   gerekli olan route'ları express sunucusuna tanımlayabiliriz. */
   registerRoutes(httpServer) {

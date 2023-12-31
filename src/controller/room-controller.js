@@ -1,3 +1,4 @@
+import createRoomValidator from "../request-validators/room/create-room-validator.js";
 import BaseController from "./base-controller.js";
 
 export default class RoomController extends BaseController {
@@ -10,8 +11,6 @@ export default class RoomController extends BaseController {
   };
 
   delete(req, res) {
-    if (!this.checkAuth(req, res)) return;
-
     // TODO Handle here.
     console.log(">> RoomController::delete() function invoked.");
     res.json({
@@ -28,37 +27,40 @@ export default class RoomController extends BaseController {
   }
 
   createRoom(req, res) {
-    if (!this.checkAuth(req, res)) return;
+    console.log(">> Raw input: ", req.body);
 
-    // TODO Handle here.
+    const validResult = createRoomValidator.validate(req.body);
+    if (validResult.error) {
+      this.showError(validResult.error);
+      return;
+    }
+
+    console.log(">> valid input: ", validResult);
+
+    // TODO Insert object to db.
+    validResult.value;
+
     console.log(">> RoomController::createRoom() function invoked.");
-    res.json({
-      status: "success",
+    // TODO Find a way for validating inputs.
+
+    this.showSuccess(res, {
+      // TODO Fill this prop.
+      roomInfo: validResult,
     });
   }
 
   join(req, res) {
-    if (!this.checkAuth(req, res)) return;
-
-    console.log(">> RoomController::join() function invoked.");
-
-    // TODO Websocketteki diğer kullanıcılara bilgi gönder.
-
-    console.log(">> this.services", this.services.websocketService);
-
     this.services.websocketService.sendData("default", {
       message: "Yeni bir kullanıcı odaya girdi.",
     });
 
-    res.json({
-      status: "success",
-      datetime: Date.now(),
+    this.showSuccess(res, {
+      // TODO Fill this prop.
+      roomInfo: null,
     });
   }
 
   sendMessage(req, res) {
-    if (!this.checkAuth(req, res)) return;
-
     // TODO Create authentication mechanism.
 
     console.log(">> RoomController::sendMessage() function invoked.");
