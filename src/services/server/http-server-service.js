@@ -27,7 +27,10 @@ export default class HttpServer {
   }
 
   checkAuth(req, res, next) {
-    if (req.originalUrl.startsWith("/auth")) {
+    if (
+      req.originalUrl.startsWith("/auth") ||
+      req.originalUrl.startsWith("/public")
+    ) {
       next();
       return;
     }
@@ -41,7 +44,7 @@ export default class HttpServer {
       });
       return;
     }
-    const foundUserId = this.services.cache.get("auth_" + token);
+    const foundUserId = this.services.cache.getSync("auth_" + token);
     if (!foundUserId) {
       res.json({
         status: "error",
@@ -50,7 +53,7 @@ export default class HttpServer {
       return;
     }
 
-    // Burada user id datasını request'e ekleyebiliriz.
+    // Burada user id datasını request'e ekliyoruz (inject ediyoruz).
     req.authUserId = foundUserId;
 
     next();

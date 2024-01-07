@@ -27,10 +27,34 @@ export default class WebsocketServer {
     return true;
   }
 
+  async startHeartBeat() {
+    this.clients = this.clients.filter((item) => item);
+
+    console.log("Sending HB data to these clients: " + this.clients.length);
+
+    this.clients.forEach((ws, index) => {
+      console.log(">> 🚀 file: websocket-server-service.js:34 🚀 ws:", ws);
+
+      try {
+        if (ws.lastHbTime < Date.now() - 60) {
+          delete this.clients[index];
+        } else {
+          ws.send(JSON.stringify({ hb: Date.now() }));
+        }
+      } catch (e) {
+        delete this.clients[index];
+      }
+    });
+
+    setTimeout(() => this.startHeartBeat(), 3_000);
+  }
+
   async start() {
     console.log("Websocket server starting.");
 
     this.server = uWS.App();
+
+    this.startHeartBeat();
 
     this.server
       .ws("/*", {
@@ -57,8 +81,11 @@ export default class WebsocketServer {
               data: "`default` odasına hoşgeldiniz.",
             })
           );
+
+          this.clients.push(ws);
         },
-        /* Herhangi bir websocket client'ından sunucuya mesaj geldiğinde bu fonksiyon çalışır. */
+        /* Herhangi bir websocket client'ından sunucuya mesaj geldiğinde
+        bu fonksiyon çalışır. */
         message: (ws, message, isBinary) => {
           console.log(
             "WS message received from IP: " +

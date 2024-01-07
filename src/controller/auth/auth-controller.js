@@ -9,7 +9,6 @@ logicleri servis class'larında yazmamız gerekiyor ve bu servisler bağımsız 
 
 Authentication: doğrulama
 Authorization: yetkilendirme
-
 */
 
 export default class AuthController extends BaseController {
@@ -54,8 +53,6 @@ export default class AuthController extends BaseController {
       );
     }
 
-    console.log(">> Auth olunabilir", foundUser);
-
     // JWT bilgisini oluştur ve client'a gönder.
 
     req.body.username;
@@ -69,7 +66,7 @@ export default class AuthController extends BaseController {
       ait olduğunu tespit edebiliriz. Bunu yapabilmek için bize bir cache paketi lazım. */
       token = crypto.randomUUID();
 
-      this.services.cache.set("auth_" + token, foundUser._id, 60 * 60 * 5);
+      this.services.cache.setSync("auth_" + token, foundUser._id, 60 * 60 * 5);
     } else if (process.env.AUTH_MECHANISM === "jwt") {
       // TODO Handle here.
       //token = jwt.sign();
