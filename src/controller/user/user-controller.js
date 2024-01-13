@@ -2,7 +2,7 @@ import { User } from "../../models/user.js";
 import BaseController from "../base-controller.js";
 
 export default class UserController extends BaseController {
-  routes = {
+  httpRoutes = {
     "/user/me": this.me.bind(this),
     "/user/logout": this.logout.bind(this),
   };

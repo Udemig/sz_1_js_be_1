@@ -1,6 +1,7 @@
 export default class BaseController {
   services = null;
-  routes = {};
+  httpRoutes = {};
+  websocketRoutes = {};
 
   constructor(services) {
     this.services = services;
@@ -22,16 +23,16 @@ export default class BaseController {
 
   /* httpServer parametresine express server objesi gelecek. Bu sayede şuanki class için
   gerekli olan route'ları express sunucusuna tanımlayabiliriz. */
-  registerRoutes(httpServer) {
+  registerHttpRoutes(httpServer) {
     /* Yukarıdaki `routes` objesinin bütün property'lerini dizi haline çeviriyoruz. */
-    const keys = Object.keys(this.routes);
+    const keys = Object.keys(this.httpRoutes);
     //console.log(">>>  keys:", keys);
 
     /* Otomatik şekilde bütün route'ları express sunucusuna set ediyoruz. */
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
-      console.log("Endpoint: " + key);
-      const method = this.routes[key];
+      console.log("HTTP Endpoint: " + key);
+      const method = this.httpRoutes[key];
       httpServer.use(key, (req, res) => method(req, res));
     }
 
@@ -47,5 +48,20 @@ export default class BaseController {
 
     // Doğru kullanım:
     //httpServer.use("/room/join", (req, res) => this.join(req, res));
+  }
+
+  registerWebsocketRoutes(routesObj) {
+    const keys = Object.keys(this.websocketRoutes);
+
+    /* Otomatik şekilde bütün route'ları websocket sunucusuna set ediyoruz. */
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      console.log("WS Endpoint: " + key);
+
+      /* `routesObj` datası obje referansı şeklinde geleceği için bu değişken
+      üzerinde doğrudan değişiklik yapabiliriz. Dolayısıyla tüm controllerların
+      route'ları websocket-server-service dosyası içerisinde kayıtlı olacak. */
+      routesObj[key] = this.websocketRoutes[key];
+    }
   }
 }

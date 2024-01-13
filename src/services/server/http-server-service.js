@@ -1,9 +1,9 @@
 import cors from "cors";
 import express from "express";
+import { findAllControllerFiles } from "../../utils.js";
 
 // fs: File System, dosya ve dizinlerle çalışmayı sağlar, nodejs'e gömülü gelir bu yüzden
 // npm install yapmaya gerek yoktur.
-import fs from "fs";
 
 export default class HttpServer {
   httpServer = null;
@@ -59,32 +59,8 @@ export default class HttpServer {
     next();
   }
 
-  findAllControllerFiles() {
-    const controllerFiles = [];
-
-    const controllerFolder = process.cwd() + "/src/controller";
-
-    function findControllerFiles(currentDirectory) {
-      fs.readdirSync(currentDirectory, { withFileTypes: true }).forEach(
-        (currentFile) => {
-          //console.log("Controller file: ", currentFile);
-
-          if (currentFile.isDirectory()) {
-            findControllerFiles(currentDirectory + "/" + currentFile.name);
-            return;
-          }
-
-          controllerFiles.push(currentDirectory + "/" + currentFile.name);
-        }
-      );
-    }
-    findControllerFiles(controllerFolder);
-
-    return controllerFiles;
-  }
-
   async configureHttpServer() {
-    const controllerFiles = this.findAllControllerFiles();
+    const controllerFiles = findAllControllerFiles();
     //console.log(">> Controllers", controllerFiles);
 
     for (let i = 0; i < controllerFiles.length; i++) {
@@ -99,7 +75,7 @@ export default class HttpServer {
       try {
         // Gelen datanın mutlaka class olduğunu varsayıyoruz.
         const obj = new controllerClass.default(this.services);
-        await obj.registerRoutes(this.httpServer);
+        await obj.registerHttpRoutes(this.httpServer);
       } catch (e) {
         //console.log("This file excluding: ", controllerFile);
       }

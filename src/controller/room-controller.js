@@ -4,7 +4,7 @@ import BaseController from "./base-controller.js";
 
 export default class RoomController extends BaseController {
   /* TODO bind() fonksiyonunun ne işe yaradığını açıkla. */
-  routes = {
+  httpRoutes = {
     "/room/join": this.join.bind(this),
     "/room/create": this.createRoom.bind(this),
     "/room/sendMessage": this.sendMessage.bind(this),
@@ -12,6 +12,24 @@ export default class RoomController extends BaseController {
     "/room/list": this.list.bind(this),
     "/public/room/lastRooms": this.lastRooms.bind(this),
   };
+
+  websocketRoutes = {
+    "room/send": this.wsRoomSendHandler.bind(this),
+    "room/join": this.wsRoomJoinHandler.bind(this),
+    "room/exit": this.wsRoomExitHandler.bind(this),
+  };
+
+  async wsRoomSendHandler(ws, incomingData, wsServer) {
+    // TODO Handle here.
+  }
+
+  async wsRoomJoinHandler(ws, incomingData, wsServer) {
+    // TODO Handle here.
+  }
+
+  async wsRoomExitHandler(ws, incomingData, wsServer) {
+    // TODO Handle here.
+  }
 
   async delete(req, res) {
     // TODO Handle here.

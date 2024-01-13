@@ -12,10 +12,50 @@ Authorization: yetkilendirme
 */
 
 export default class AuthController extends BaseController {
-  routes = {
+  httpRoutes = {
     "/auth/login": this.login.bind(this),
     "/auth/register": this.register.bind(this),
   };
+
+  websocketRoutes = {
+    "auth/login": this.wsLoginHandler.bind(this),
+  };
+
+  async wsLoginHandler(ws, incomingData, wsServer) {
+    console.log(">> 🚀 🚀 🚀 🚀  wsLoginHandler invoked", arguments);
+
+    // token bilgisini kontrol et, geçerliyse "success" mesajı gönder,
+    // geçersiz token girilmişse o zaman hata mesajı gönder.
+    const foundUserId = this.services.cache.getSync(
+      "auth_" + incomingData.token
+    );
+
+    /* Token mevcutsa userId bilgisi gelir. Eğer userId varsa client'a success
+    mesajı gönder, eğer yoksa error message gönder ve bir süre sonra connection'ı
+    kapat. Çünkü auth olmayan kullanıcıların websocketten data transferi yapmayacakları
+    için bu connection servera yük olmasın. */
+    if (foundUserId) {
+      ws.getUserData().userId = foundUserId;
+
+      ws.send(
+        JSON.stringify({
+          status: "success",
+          data: "Başarıyla login oldunuz.",
+        })
+      );
+    } else {
+      ws.send(
+        JSON.stringify({
+          status: "error",
+          data: "Hatalı token girildi, bağlantı sonlandırılıyor.",
+        })
+      );
+
+      setTimeout(() => {
+        ws.close();
+      }, 2_000);
+    }
+  }
 
   async login(req, res) {
     /* Gelen inputları validate et. Tabiki validation için daha iyi yöntemler mevcut ama
