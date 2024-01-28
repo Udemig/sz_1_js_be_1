@@ -15,11 +15,18 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
     "nodemon": "^3.0.2",
+    "stack-trace": "^1.0.0-pre2",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.33.0"
   },
   "scripts": {
     "dev": "nodemon -w src -w .env src/server.js",
     "start": "node src/server.js",
     "test": "echo \"Not implemented\""
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "@babel/core": "^7.23.9",
+    "@babel/preset-env": "^7.23.9",
+    "babel-jest": "^29.7.0"
   }
 }

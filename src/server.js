@@ -17,17 +17,19 @@ dotenv.config({
       websocketService: null,
       cache: new Cache({
         basePath: "./.cache", // (optional) Path where cache files are stored (default).
-        ns: "aaa", // (optional) A grouping namespace for items.
+        ns: "app", // (optional) A grouping namespace for items.
         hash: "sha1", // (optional) A hashing algorithm used within the cache key.
         ttl: 60, // (optional) A time-to-live (in secs) on how long an item remains cached.
       }),
     };
 
+    console.log("Trying to connect mongodb.");
     const mongoConnection = await mongoose.connect(
       process.env.MONGODB_CONNECTION,
       {
         dbName: process.env.DB_NAME,
         autoCreate: true,
+        socketTimeoutMS: 5_000,
       }
     );
     console.log("Mongodb connected.");

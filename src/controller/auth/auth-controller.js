@@ -22,8 +22,6 @@ export default class AuthController extends BaseController {
   };
 
   async wsLoginHandler(ws, incomingData, wsServer) {
-    console.log(">> 🚀 🚀 🚀 🚀  wsLoginHandler invoked", arguments);
-
     // token bilgisini kontrol et, geçerliyse "success" mesajı gönder,
     // geçersiz token girilmişse o zaman hata mesajı gönder.
     const foundUserId = this.services.cache.getSync(
@@ -138,24 +136,32 @@ export default class AuthController extends BaseController {
     }
 
     (async () => {
-      //
-      const hashedPassword = await bcrypt.hash(
-        req.body.password + process.env.APP_KEY,
-        12
-      );
+      try {
+        const hashedPassword = await bcrypt.hash(
+          req.body.password + process.env.APP_KEY,
+          12
+        );
 
-      const newUser = await User.create({
-        ...req.body,
-        password: hashedPassword,
-      });
+        const newUser = await User.create({
+          ...req.body,
+          password: hashedPassword,
+        });
 
-      console.log("New user: ", newUser);
+        console.log("New user: ", newUser);
 
-      // TODO Burada JWT oluştur ve client'a gönder
-
-      return this.showSuccess(res, {
-        username: newUser.username,
-      });
+        return this.showSuccess(res, {
+          username: newUser.username,
+        });
+      } catch (e) {
+        /*
+        "E11000 duplicate key error collection: chat_backend.users 
+        index: username_1 dup key: { username: \"test3\" }"
+        */
+        return this.showError(
+          res,
+          "Lütfen formu kontrol ediniz. Username veya email daha önceden kullanılmış olabilir."
+        );
+      }
     })();
   }
 }

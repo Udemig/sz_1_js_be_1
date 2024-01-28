@@ -1,18 +1,77 @@
 import uWS from "uWebSockets.js";
-import { bufferToString, findAllControllerFiles } from "../../utils.js";
+import {
+  ROOM_PREFIXES,
+  bufferToString,
+  findAllControllerFiles,
+} from "../../utils.js";
+import WsConnectionHandler from "./ws/ws-connection-handler.js";
 
-export default class WebsocketServer {
+export default class WebsocketServerService {
   services = null;
   wsServer = null;
 
   /* Hangi ws client'ının hangi user'a ait olduğunu burada tutacağız. */
   wsClients = [];
 
+  // Burası şimdilik kalsın, hangi client'ın hangi room'da olduğunu tutan
+  // bir yöntem geliştireceğiz.
+  /* Şu şekilde bir yapı kuracağız: roomları map yapısı şeklinde tutacağız. Her odanın
+  içerisinde birden fazla peer olacağından dolayı bunları da dizi olarak tutacağız. Yani
+  son hali şuna benzer olacak:
+
+  {
+    "room_id_1" : [
+      { ws_conn_1, user_id_1 },
+      { ws_conn_2, user_id_1 },
+      { ws_conn_3, user_id_6 },
+      { ws_conn_4, user_id_3 },
+    ],
+    "room_id_2" : [
+      { ws_conn_1, user_id_3 },
+      { ws_conn_2, user_id_5 },
+      { ws_conn_3, user_id_5 },
+      { ws_conn_4, user_id_1 },
+    ],
+    "room_id_3" : [
+    ],
+    "room_id_4" : [
+    ]
+  }
+  */
+
   wsRoutes = {};
 
   constructor(services) {
     this.services = services;
     console.log("Websocket server instance created.");
+  }
+
+  async getRoomOnlinePeers(roomId) {
+    const userIds = [];
+
+    this.wsClients.forEach((ws) => {
+      try {
+        console.log(
+          "ws isSubscribed:",
+          ws.isSubscribed(ROOM_PREFIXES.room_id + roomId)
+        );
+        console.log("ws userId:", ws.getUserData().userId);
+        console.log("ws includes:", userIds.includes(ws.getUserData().userId));
+
+        if (
+          ws.isSubscribed(ROOM_PREFIXES.room_id + roomId) &&
+          ws.getUserData().userId &&
+          !userIds.includes(ws.getUserData().userId)
+        ) {
+          userIds.push(ws.getUserData().userId);
+        }
+      } catch (e) {}
+    });
+
+    console.log(">> 🚀 wsClients:", this.wsClients);
+    console.log(">> 🚀 online userIds:", userIds);
+
+    return userIds;
   }
 
   /* Belirtilen topic'e mesaj gönder. `sendData()` methodu diğer servislerden
@@ -32,16 +91,9 @@ export default class WebsocketServer {
   async startHeartBeat() {
     this.wsClients = this.wsClients.filter((item) => item);
 
-    console.log("Sending HB data to these clients: " + this.wsClients.length);
-
     this.wsClients.forEach((ws, index) => {
       try {
-        console.log("Ws client processing: ", ws.getUserData());
-
-        console.log(
-          ">> 🚀 file: websocket-server-service.js:34 🚀 ws:",
-          bufferToString(ws.getRemoteAddressAsText())
-        );
+        //console.log("Ws client processing: ", ws.getUserData());
 
         if (ws.lastHbTime < Date.now() - 60) {
           delete this.wsClients[index];
@@ -70,16 +122,15 @@ export default class WebsocketServer {
       const controllerFile = controllerFiles[i];
       const controllerClass = await import(controllerFile);
 
-      // buraya dön
       try {
         const obj = new controllerClass.default(this.services);
         await obj.registerWebsocketRoutes(this.wsRoutes);
       } catch (e) {
-        //console.log("This file excluding: ", controllerFile);
+        /* Aslında hiçbir catch bloğu boş bırakılmamalı. Bütün exception'lar mutlaka
+        handle edilmeli. Çünkü eğer böyle yapmazsak önemsiz olduğunu sandığımız hatalar
+        ileride büyük sıkıntılar çıkarabilir. */
       }
     }
-
-    console.log("All websocket routes: ", this.wsRoutes);
   }
 
   async start() {
@@ -102,11 +153,6 @@ export default class WebsocketServer {
         /* Herhangi bir websocket client'ı yeni bağlantı oluşturduğunda bu fonksiyon çalışır. */
         open: (ws) => {
           try {
-            console.log(
-              "Websocket connection received, IP: " +
-                bufferToString(ws.getRemoteAddressAsText())
-            );
-
             /* Her yeni bağlantıyı öncelikle "default" topic'e (topic yani room yani oda) bağlayalım. */
             ws.subscribe("default");
 
@@ -127,28 +173,8 @@ export default class WebsocketServer {
         /* Herhangi bir websocket client'ından sunucuya mesaj geldiğinde
         bu fonksiyon çalışır. */
         message: (ws, message, isBinary) => {
-          console.log(
-            "WS message received from IP: ",
-            bufferToString(ws.getRemoteAddressAsText()),
-            bufferToString(message, "utf-8")
-          );
           let messageStr = bufferToString(message, "utf-8");
           let messageObj = JSON.parse(messageStr);
-          console.log(">> 🚀 messageObj:", messageObj);
-
-          /*
-Client'tan sunucuya gönderilen örnek mesajlar:
-
->> 🚀 file: websocket-server-service.js:34 🚀 ws: 127.0.0.1
-WS message received from IP: 127.0.0.1 {"token":"1335d6a4-14fa-4861-b89a-014302043bdd"}
->> 🚀 messageObj: { token: '1335d6a4-14fa-4861-b89a-014302043bdd' }
-{ comand: "auth/login", token: "1335d6a4-14fa-4861-b89a-014302043bdd"}
-WS message received from IP: 127.0.0.1 {"token":"1335d6a4-14fa-4861-b89a-014302043bdd"}
->> 🚀 messageObj: { token: '1335d6a4-14fa-4861-b89a-014302043bdd' }
-{command: "room/send", message: "merhaba", room_id: "12"}
-room/join
-room/exit
-*/
 
           /* Aşağıdaki if blokları sayesinde clienttan gelen mesajın nasıl işleneceğini
           tespit edebiliyoruz. Fakat bu yöntem en basit ve amatör yöntemdir. Mesaj türleri
@@ -159,29 +185,31 @@ room/exit
           `command` property'si ile eşleştirerek datayı ilgili fonksiyona gönderebiliriz.
           Böylece çok miktardaki datayı farklı controllerlara bölebiliriz. */
 
-          // buraya dön
           const routeList = Object.keys(this.wsRoutes);
           const routeMethods = Object.values(this.wsRoutes);
 
           // TODO Eğer bilinmeyen bir command gelmişse o zaman client'a hata mesajı gönder.
-
           let commandFound = false;
 
           routeList.forEach((item, index) => {
             if (item === messageObj.command) {
               commandFound = true;
-              // Bulunan methodu invoke et.
-              routeMethods[index](ws, messageObj, this.wsServer);
+              const method = routeMethods[index];
+              method(new WsConnectionHandler(ws), messageObj, this.wsServer);
             }
           });
 
           if (!commandFound) {
-            ws.send(
-              JSON.stringify({
-                status: "error",
-                errorMessage: "Bilinmeyen bir komut gönderildi.",
-              })
-            );
+            if (typeof messageObj === "object" && messageObj.hb) {
+              // TODO Handle heartbeat.
+            } else {
+              ws.send(
+                JSON.stringify({
+                  status: "error",
+                  errorMessage: "Bilinmeyen bir komut gönderildi.",
+                })
+              );
+            }
           }
 
           /* Ok is false if backpressure was built up, wait for drain */
@@ -194,7 +222,9 @@ room/exit
           //);
         },
 
-        /* Bu fonksiyona ihtiyacımız yok ama yine de burada dursun. */
+        /* Bu fonksiyona ihtiyacımız yok ama yine de burada dursun. Aslında bu event'ın
+        amacı beklemede duran çok fazla mesaj biriktiğinde çalışır. Dolayısıyla kuyruğun
+        dolduğunu bu event vasıtasıyla anlayabiliriz ve ona göre aksiyon alabiliriz. */
         drain: (ws) => {
           console.log(
             "WebSocket backpressure: " +
@@ -203,11 +233,7 @@ room/exit
         },
 
         /* Herhangi bir websocket client'ı bağlantısını kapattığında bu fonksiyon çalışır. */
-        close: (ws, code, message) => {
-          console.log("Websocket connection closed");
-
-          // TODO Bu `ws`  client listesinden sil.
-        },
+        close: (ws, code, message) => {},
       })
       .any("/*", (res, req) => {
         res.end("HTTP Server response");

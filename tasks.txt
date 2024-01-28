@@ -3,23 +3,19 @@ Yapılacak olan özellikler:
 ------------------
 >> Backend
 
-- User register api
++ User register api
++ User login api
++ User login olduktan sonra websocket bağlantısı açılacak, login olmayan userlar websockete bağlanamasın.
++ Tüm room'lar db'de saklansın.
++ Tüm mesajlar db'de saklansın.
++ User'lar oda (room) oluşturabilsin. Room oluştururken kaç kişilik olacağını belirleyebilsin.
+  Kişi sayısına ulaşınca bu room'a başka kimse katılamasın. (Ödev: odalarda maximum client kontrolü)
 
-- User login api
-
-- User login olduktan sonra websocket bağlantısı açılacak, login olmayan userlar websockete bağlanamasın.
-
-- User'lar oda (room) oluşturabilsin. Room oluştururken kaç kişilik olacağını belirleyebilsin.
-  Kişi sayısına ulaşınca bu room'a başka kimse katılamasın.
-
-- User'lar room'ları listeleyebilsin.
++ User'lar room'ları listeleyebilsin.
 
 - Tüm user hareketleri mongodb'de loglansın (room oluşturdu, room'a katıldı, room'dan çıktı,
-  login oldu, logout oldu).
+  login oldu, logout oldu). (Ödev)
 
-- Tüm room'lar db'de saklansın.
-
-- Tüm mesajlar db'de saklansın.
 
 
 
@@ -27,14 +23,17 @@ Yapılacak olan özellikler:
 ------------------
 >> Frontend
 
-- Login & register page.
++ Chat page.
++ Bir odada bulunan aktif kullanıcıların listesini HTTP API ile al.
++ Bir odaya girildiğinde son mesajların yüklenmesi.
++ Mesajların çerçeve içerisinde scroll olması.
++ Mesaj gönderildikten sonra inputu temizle.
++ Login & register page.
 
-- Room list page.
++ Room list page.
+- Mesaj gönderme ekranında autocomplete problemini hallet. (Buna geniş bir zamanda bakarız)
 
-- Chat page.
-
-- User logs page.
-
+- User logs page. (Ödev)
 
 
 -----------------

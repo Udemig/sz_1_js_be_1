@@ -21,6 +21,13 @@ export const findAllControllerFiles = () => {
           return;
         }
 
+        if (
+          currentFile.name.endsWith("spec.js") ||
+          currentFile.name.endsWith("test.js")
+        ) {
+          return;
+        }
+
         controllerFiles.push(currentDirectory + "/" + currentFile.name);
       }
     );
@@ -28,4 +35,18 @@ export const findAllControllerFiles = () => {
   findControllerFiles(controllerFolder);
 
   return controllerFiles;
+};
+
+export const ROOM_PREFIXES = {
+  room_id: "room_id_",
+};
+
+export const FRONTEND_WS_COMMANDS = {
+  incoming_message: "incoming_message",
+  peer_subscribed: "peer_subscribed",
+  peer_unsubscribed: "peer_unsubscribed",
+};
+
+export const sleep = async (ms) => {
+  return new Promise((r) => setTimeout(r, ms));
 };

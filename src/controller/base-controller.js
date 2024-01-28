@@ -8,17 +8,25 @@ export default class BaseController {
   }
 
   showError(res, errorMessage) {
-    res.json({
-      status: "error",
-      errorMessage,
-    });
+    res.json(this.getErrorJson(errorMessage));
   }
 
   showSuccess(res, data) {
-    res.json({
+    res.json(this.getSuccessJson(data));
+  }
+
+  getErrorJson(errorMessage) {
+    return {
+      status: "error",
+      errorMessage,
+    };
+  }
+
+  getSuccessJson(data) {
+    return {
       status: "success",
       data,
-    });
+    };
   }
 
   /* httpServer parametresine express server objesi gelecek. Bu sayede şuanki class için
@@ -32,8 +40,35 @@ export default class BaseController {
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       console.log("HTTP Endpoint: " + key);
+
+      if (!key.startsWith("/")) {
+        throw new Error("This route must start with slash: " + key);
+      }
+
       const method = this.httpRoutes[key];
-      httpServer.use(key, (req, res) => method(req, res));
+
+      /* Burası route'ları register ettiğimiz yer. Methodlardan bir hata fırlatıldığında
+      eğer bunu yakalamazsak (catch etmezsek) o zaman program komple çöküyor. Bu problemden
+      kurtulmak için methodlardan fırlatılan hataları bir şekilde yakalayıp loglamak ve
+      client'a hata mesajını göstermek gerekir. Böylece program çökmemiş olur. Bu işlemi
+      yapmak için iki yöntem var. Birinci yöntem try-catch bloğunu aşağıda kurgulamak.
+      İkinci yöntem ise genel bir exception handler middleware oluşturup express'e tanımlamak.
+      Birinci yöntem biraz amatör bir yöntem olacağından dolayı ikinci yöntemi tercih edeceğiz.
+      Çünkü ikinci yöntemde ayrıca express'i daha efektif kullanmış oluruz. */
+      httpServer.use(key, async (req, res) => {
+        //method(req, res);
+
+        try {
+          await method(req, res);
+        } catch (e) {
+          console.error("An error occured: ", e);
+
+          res.json({
+            status: "error",
+            errorMessage: e.message,
+          });
+        }
+      });
     }
 
     /* Eğer httpServer.use() ifadesinin ikinci parametresine şuanki class'ın methodunu

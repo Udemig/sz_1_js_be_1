@@ -1,0 +1,17 @@
+>> Test Yazarken Nelere Dikkat Etmeliyiz?
+
+- Bir projeyi yaparken düşünce tarzımız o projenin inşa edilmesi şeklindedir.
+  Ama test yazarken tam tesi olmalı. Yani projeyi yıkmaya çalışmalıyız. Her
+  public fonksiyonu ayrı ayrı test etmeliyiz.
+
+- Neden sadece public fonksiyonlar test edilmeli? Çünkü private olanlara dışarıdan
+  erişim yoktur ve sadece public fonksiyonlar tarafından erişilebilir. Dolayısıyla
+  public'leri test ettiğimizde aslında dolaylı yoldan private'leri de test etmiş
+  oluruz. Bir de projenin gelişimine bağlı olarak private fonksiyonlar sürekli
+  değişim içindedir ama public'ler çok fazla değişmez. Bundan dolayı hem iş
+  yükünü azaltmak için hem de zaten private'ler public'ler tarafından çağırılıyor
+  olduğu için private'leri test etmeye gerek yoktur.
+
+- Bir fonksiyonu test ederken o fonksiyonun parametrelerine sıra dışı (yani normal
+  olmayan) dataları gönderip sonuçlarına bakarız. Eğer herşey beklenildiği gibiyse
+  o fonksiyon testlerden geçmiş demektir.

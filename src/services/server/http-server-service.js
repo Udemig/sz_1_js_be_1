@@ -5,7 +5,7 @@ import { findAllControllerFiles } from "../../utils.js";
 // fs: File System, dosya ve dizinlerle çalışmayı sağlar, nodejs'e gömülü gelir bu yüzden
 // npm install yapmaya gerek yoktur.
 
-export default class HttpServer {
+export default class HttpServerService {
   httpServer = null;
   services = null;
 
@@ -24,9 +24,25 @@ export default class HttpServer {
     );
 
     this.httpServer.use(this.checkAuth.bind(this));
+
+    // TODO Burası beklendiği gibi çalışmıyor, hataları yakalamıyor. Bunu araştır.
+    this.httpServer.use(this.errorHandler.bind(this));
   }
 
-  checkAuth(req, res, next) {
+  async errorHandler(err, req, res, next) {
+    try {
+      await next();
+    } catch (e) {
+      console.error("Exception captured in middleware: ", e);
+
+      res.json({
+        status: "error",
+        errorMessage: e.message,
+      });
+    }
+  }
+
+  async checkAuth(req, res, next) {
     if (
       req.originalUrl.startsWith("/auth") ||
       req.originalUrl.startsWith("/public")
@@ -67,16 +83,13 @@ export default class HttpServer {
       const controllerFile = controllerFiles[i];
 
       const controllerClass = await import(controllerFile);
-      //console.log("----------------------");
-      //console.log(">> Ctrl: ", controllerFile);
-      //console.log(">> Val :", controllerClass.default);
-      //console.log("----------------------");
 
+      // Gelen datanın mutlaka class olduğunu varsayıyoruz.
+      const obj = new controllerClass.default(this.services);
+      await obj.registerHttpRoutes(this.httpServer);
       try {
-        // Gelen datanın mutlaka class olduğunu varsayıyoruz.
-        const obj = new controllerClass.default(this.services);
-        await obj.registerHttpRoutes(this.httpServer);
       } catch (e) {
+        console.error(">> 🚀 e:", e);
         //console.log("This file excluding: ", controllerFile);
       }
     }
