@@ -29,7 +29,7 @@ test("Http Server Servis checkAuth fonksiyonu doğru çalışıyor mu?", () => {
   expect(result).toBe(true);
 });
 
-test("her zaman login başarılı olma denemesi", async () => {
+test("her zaman başarılı login olma denemesi", async () => {
   const services = {
     cache: new Cache({
       basePath: "./.cache", // (optional) Path where cache files are stored (default).

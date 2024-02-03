@@ -5,9 +5,7 @@ import HttpServer from "./services/server/http-server-service.js";
 import WebsocketServer from "./services/server/websocket-server-service.js";
 
 /* cwd: Current Working Directory, yani projenin başlangıç noktası. */
-dotenv.config({
-  path: process.cwd() + "/.env",
-});
+dotenv.config({ path: process.cwd() + "/.env" });
 
 (async () => {
   try {

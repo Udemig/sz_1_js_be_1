@@ -21,12 +21,14 @@
   "scripts": {
     "dev": "nodemon -w src -w .env src/server.js",
     "start": "node src/server.js",
-    "test": "echo \"Not implemented\""
+    "test": "npx jest"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
     "@babel/core": "^7.23.9",
     "@babel/preset-env": "^7.23.9",
-    "babel-jest": "^29.7.0"
+    "@shelf/jest-mongodb": "^4.2.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^9.1.6"
   }
 }

@@ -5,6 +5,8 @@ export default {
     "^.+\\.(js|jsx|ts|tsx|mjs)$": "babel-jest",
   },
 
+  testEnvironment: "node",
+
   testMatch: [
     "**/tests/**/*.[jt]s?(x)",
     "**/tests/**/*.cjs?(x)",
