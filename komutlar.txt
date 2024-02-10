@@ -36,6 +36,10 @@ bunların kurulumunu gerçekleştirdik.
 
 2- Programların çalışacağı hostingin (linux user account) açılması:
 
+WHM içerisinde yeni bir account oluşturuyoruz. Bu account'a shell yetkisi veriyoruz. Böylece
+cpanel'e giriş yaptığımızda panelin içerisinden doğrudan shell'e erişim sağlayabiliyoruz.
+Cpanel'den shell'e giriş yapınca şu klasörde login olunur: /home/username
+
 ```
 db.createUser(
  {
@@ -46,9 +50,13 @@ db.createUser(
 )
 ```
 
-|
-
 127.0.0.1
 127.0.1.1
 
 localhost
+
+3- Projelerin indirilmesi:
+
+Deploy yapacağımız kullanıcının hesabına shell'den giriş yaptıktan sonra bütün projelerin
+barınacağı bir klasör oluştururuz. `mkdir projects` gibi. Sonra bu klasörün içerisine girip
+`git` komutuyla lazım olan projeleri klonlarız.
