@@ -23,8 +23,13 @@ export default class UserController extends BaseController {
     });
   }
 
-  logout(req, res) {
+  async logout(req, res) {
     console.log(">> Incoming auth header:", req.headers.authorization);
+
+    if (!req.headers.authorization) {
+      return this.showError(res, "Lütfen token belirtiniz.");
+    }
+
     const token = req.headers.authorization.split(" ")[1];
 
     if (typeof token === "undefined") {
@@ -37,7 +42,7 @@ export default class UserController extends BaseController {
 
     console.log(">>>  foundUserId:", foundUserId);
 
-    this.services.cache.remove("auth_" + token);
+    await this.services.cache.remove("auth_" + token);
 
     return this.showSuccess(res, null);
   }

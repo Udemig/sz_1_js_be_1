@@ -8,8 +8,8 @@ export default {
   testEnvironment: "node",
 
   testMatch: [
-    "**/tests/**/*.[jt]s?(x)",
-    "**/tests/**/*.cjs?(x)",
+    "**/tests/**/(*.)+(spec|test).[jt]s?(x)",
+    "**/tests/**/(*.)+(spec|test).cjs?(x)",
     "**/?(*.)+(spec|test).[jt]s?(x)",
     "**/?(*.)+(spec|test).cjs?(x)",
   ],

@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { User } from "../../models/user.js";
 import loginRequestValidator from "../../request-validators/auth/login-request-validator.js";
+import registerRequestValidator from "../../request-validators/auth/register-request-validator.js";
 import { AuthenticationService } from "../../services/authentication/authentication-service.js";
 import BaseController from "../base-controller.js";
 
@@ -99,44 +100,30 @@ export default class AuthController extends BaseController {
     }
   }
 
-  register(req, res) {
-    if (!req.body.username || req.body.username.length < 3) {
-      return this.showError(res, "Lütfen kullanıcı adınızı kontrol ediniz.");
+  async register(req, res) {
+    try {
+      const validInput = await registerRequestValidator.validateAsync(req.body);
+
+      const hashedPassword = await bcrypt.hash(
+        validInput.password + process.env.APP_KEY,
+        12
+      );
+
+      const newUser = await User.create({
+        ...validInput,
+        password: hashedPassword,
+      });
+
+      console.log("New user: ", newUser);
+
+      return this.showSuccess(res, {
+        username: newUser.username,
+      });
+    } catch (e) {
+      return this.showError(
+        res,
+        "Lütfen formu kontrol ediniz. Hata: " + e.message
+      );
     }
-    if (!req.body.password || req.body.password.length < 6) {
-      return this.showError(res, "Şifreniz en az 6 karakter olmalı.");
-    }
-    if (!req.body.email || req.body.email.length < 6) {
-      return this.showError(res, "Lütfen e-posta adresinizi giriniz.");
-    }
-
-    (async () => {
-      try {
-        const hashedPassword = await bcrypt.hash(
-          req.body.password + process.env.APP_KEY,
-          12
-        );
-
-        const newUser = await User.create({
-          ...req.body,
-          password: hashedPassword,
-        });
-
-        console.log("New user: ", newUser);
-
-        return this.showSuccess(res, {
-          username: newUser.username,
-        });
-      } catch (e) {
-        /*
-        "E11000 duplicate key error collection: chat_backend.users 
-        index: username_1 dup key: { username: \"test3\" }"
-        */
-        return this.showError(
-          res,
-          "Lütfen formu kontrol ediniz. Username veya email daha önceden kullanılmış olabilir."
-        );
-      }
-    })();
   }
 }

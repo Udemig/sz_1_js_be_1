@@ -5,6 +5,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import AuthController from "../../../src/controller/auth/auth-controller.js";
 import { User } from "../../../src/models/user.js";
+import { reqMocker, resMocker } from "../../utils/mocker.js";
 
 describe("auth-controller login operations", () => {
   let mongod; // mongo daemon'ın kısaltılmışı
@@ -64,20 +65,16 @@ describe("auth-controller login operations", () => {
     });
     console.log("New user: ", newUser);
 
+    // TODO Login işleminin başarılı olması durumu için test yaz.
+
     let result = null;
 
-    const mockReq = {
-      body: {
-        username: 1,
-        password: 2,
-      },
-    };
-    const mockRes = {
-      json: function (data) {
-        console.log(data);
-        result = data;
-      },
-    };
+    const mockReq = reqMocker({
+      username: 1,
+      password: 2,
+    });
+
+    const mockRes = resMocker((data) => (result = data));
 
     const controller = new AuthController(services);
     await controller.login(mockReq, mockRes);
@@ -88,5 +85,94 @@ describe("auth-controller login operations", () => {
     //expect(result.user.username).toBe(testUser);
     expect(result.status).toBe("error");
     expect(result.errorMessage).toBe('"username" must be a string');
+  });
+
+  it("should register success", async () => {
+    const testUser = crypto.randomUUID().replace(/-/g, "");
+    const testEmail = testUser + "@test.com";
+    const testPass = "test_password";
+
+    let result = null;
+    const mockReq = reqMocker({
+      username: testUser,
+      password: testPass,
+      email: testEmail,
+    });
+    const mockRes = resMocker((data) => (result = data));
+
+    const controller = new AuthController(services);
+    await controller.register(mockReq, mockRes);
+    console.log(">> 🚀 register result:", result);
+
+    expect(result.status).toBe("success");
+  });
+
+  it("should register fail", async () => {
+    const dangerouslyDataSet = [
+      {
+        username: 1,
+        password: 2,
+        email: 3,
+        foo: "foo",
+        attac_prop: "'* -- =)(/&",
+      },
+      {
+        username: false,
+        password: {},
+        email: 0,
+        attac_prop: "'* -- =)(/&",
+      },
+      {
+        username: "test",
+        password: 12345,
+        email: "test@",
+        firstname: "",
+      },
+      {
+        username: "test",
+        password: "12345",
+        email: "test@",
+        firstname: "",
+      },
+      {
+        username: "test",
+        password: "123456",
+        email: "test@",
+        firstname: "",
+      },
+      {
+        username: "test",
+        password: "123456",
+        email: "test@x",
+        firstname: "",
+      },
+      {
+        username: "test",
+        password: "123456",
+        email: "test@x.com",
+        firstname: "",
+      },
+    ];
+
+    let result = null;
+
+    const mockRes = {
+      json: function (data) {
+        console.log(data);
+        result = data;
+      },
+    };
+    const controller = new AuthController(services);
+
+    for (let i = 0; i < dangerouslyDataSet.length; i++) {
+      const mockReq = {
+        body: dangerouslyDataSet[i],
+      };
+
+      await controller.register(mockReq, mockRes);
+      console.log(">> 🚀 register result:", result);
+
+      expect(result.status).toBe("error");
+    }
   });
 });
