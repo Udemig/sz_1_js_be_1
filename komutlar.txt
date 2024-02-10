@@ -1,0 +1,54 @@
+--- Sunucu bilgileri:
+server ip adres: 89.116.26.84
+
+curl -fsSL https://rpm.nodesource.com/setup_21.x | sudo -E bash -
+dnf install nodejs -y
+
+--- X tabanlı işletim sistemlerinde dosya uzantıları:
+.so - Linux (örneğin ubuntu, centos, redhat, android) tabanlı işletim sistemlerinde
+library uzantısı
+.dylib - Unix (örneğin macos) tabanlı işletim sistemlerinde library uzantısı
+
+--- systemctl komutunun kullanımı:
+
+# systemctl [enable|disable|start|stop|status] [service_name]
+
+$ systemctl
+
+--- Shell promptunun durumu:
+
+Eğer diyez (#) işareti varsa şuanki kullanıcı root'tur veya root (veya wheel) grubuna
+dahil olmuş olan bir kullanıcı hesabında oturum açtığımızı gösterir. Eğer dolar ($)
+işareti varsa non-root (yani root olmayan) bir hesapta olduğumuzu gösterir.
+
+[root@vmi1587803 ~]# _
+[example@vmi1587803 ~]$ _
+
+---
+
+--- Deployment aşamaları:
+
+1- Ön hazırlık:
+
+İhtiyaç duyduğumuz bütün programların (paketlerin) sunucuya kurulması ve gerekli ayarlamaların
+yapılması işlemidir. Bizim projemizde nodejs 21, mongodb, yarn gibi programlar gerekliydi ve
+bunların kurulumunu gerçekleştirdik.
+
+2- Programların çalışacağı hostingin (linux user account) açılması:
+
+```
+db.createUser(
+ {
+    user: "deployment",
+    pwd: "123456",
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+ }
+)
+```
+
+|
+
+127.0.0.1
+127.0.1.1
+
+localhost
