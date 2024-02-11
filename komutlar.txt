@@ -60,3 +60,51 @@ localhost
 Deploy yapacağımız kullanıcının hesabına shell'den giriş yaptıktan sonra bütün projelerin
 barınacağı bir klasör oluştururuz. `mkdir projects` gibi. Sonra bu klasörün içerisine girip
 `git` komutuyla lazım olan projeleri klonlarız.
+
+-----
+- Domainlerin yapısı
+
+Domain uzantısı dediğimiz kısım aslında işin başlangıç noktası.
+
+160.23.34.45 helsinki
+160.23.35.45 helsinki_lab
+160.23.36.45 helsinki_management
+
+com - company'nin kısaltılmışı
+org - organisation'ın kısaltması
+edu - education
+net - network
+mil - military
+
+tr - türkiye
+au - australia
+
+
+example.com
+google.com - 12.23.34.45        Bunun ismi domain.
+www.google.com - 12.23.34.46    Bunun da ismi domain aslında ama ana domainin sol tarafında
+                                ek olduğu için bu eklenmiş haline subdomain diyebiliriz.
+maps.google.com - 12.23.34.47   Bu da subdomain örneği.
+
+
+
+
+hasan.huseyin.ahmet.mehmet.falan.filan
+
+160.23.34.46 mit
+160.23.34.46 harvard
+
+
+
+
+udemig.dev
+
+
+read -p "Domain: " -ra domain </dev/tty; \
+mkdir -p /etc/apache2/conf.d/userdata/ssl/2_4/$(/scripts/whoowns $domain)/$domain/; \
+mkdir -p /etc/apache2/conf.d/userdata/std/2_4/$(/scripts/whoowns $domain)/$domain/; \
+nano /etc/apache2/conf.d/userdata/ssl/2_4/$(/scripts/whoowns $domain)/$domain/include.conf; \
+cp /etc/apache2/conf.d/userdata/ssl/2_4/$(/scripts/whoowns $domain)/$domain/include.conf \
+/etc/apache2/conf.d/userdata/std/2_4/$(/scripts/whoowns $domain)/$domain/include.conf ;
+
+/usr/local/cpanel/scripts/rebuildhttpdconf; /usr/local/cpanel/scripts/restartsrv_httpd
