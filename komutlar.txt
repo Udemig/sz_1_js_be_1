@@ -100,6 +100,14 @@ hasan.huseyin.ahmet.mehmet.falan.filan
 udemig.dev
 
 
+--------------------
+- WHM apache config dökümanı:
+https://support.cpanel.net/hc/en-us/articles/360052925073-How-to-use-Apache-Includes-to-add-Configuration-Directives-to-a-specific-domain-s-VirtualHost
+
+
+
+- Bizim kullandığımız komutlar:
+
 read -p "Domain: " -ra domain </dev/tty; \
 mkdir -p /etc/apache2/conf.d/userdata/ssl/2_4/$(/scripts/whoowns $domain)/$domain/; \
 mkdir -p /etc/apache2/conf.d/userdata/std/2_4/$(/scripts/whoowns $domain)/$domain/; \
@@ -107,4 +115,17 @@ nano /etc/apache2/conf.d/userdata/ssl/2_4/$(/scripts/whoowns $domain)/$domain/in
 cp /etc/apache2/conf.d/userdata/ssl/2_4/$(/scripts/whoowns $domain)/$domain/include.conf \
 /etc/apache2/conf.d/userdata/std/2_4/$(/scripts/whoowns $domain)/$domain/include.conf ;
 
+
 /usr/local/cpanel/scripts/rebuildhttpdconf; /usr/local/cpanel/scripts/restartsrv_httpd
+
+
+http reverse proxy için include.conf içeriği
+ProxyPass /.well-known !
+ProxyPass / http://127.0.0.1:5000/
+ProxyPassReverse / http://127.0.0.1:5000/
+
+
+ws reverse proxy için include.conf içeriği
+ProxyPass /.well-known !
+ProxyPass / ws://127.0.0.1:5001/
+ProxyPassReverse / ws://127.0.0.1:5001/

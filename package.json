@@ -21,6 +21,7 @@
   "scripts": {
     "dev": "nodemon -w src -w .env src/server.js",
     "start": "node src/server.js",
+    "forever": "forever -a --uid \"chat_backend\" start src/server.js",
     "test": "npx jest"
   },
   "devDependencies": {
