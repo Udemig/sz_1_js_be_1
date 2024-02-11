@@ -152,6 +152,11 @@ export default class WebsocketServerService {
 
         /* Herhangi bir websocket client'ı yeni bağlantı oluşturduğunda bu fonksiyon çalışır. */
         open: (ws) => {
+          console.log(
+            "New connection received from: " +
+              bufferToString(ws.getRemoteAddressAsText())
+          );
+
           try {
             /* Her yeni bağlantıyı öncelikle "default" topic'e (topic yani room yani oda) bağlayalım. */
             ws.subscribe("default");
