@@ -236,6 +236,14 @@ export default class WebsocketServerService {
         close: (ws, code, message) => {},
       })
       .any("/*", (res, req) => {
+        res.writeHeader("Access-Control-Allow-Origin", process.env.CORS_ORIGIN);
+        res.writeHeader("Access-Control-Allow-Credentials", "true");
+        res.writeHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.writeHeader(
+          "Access-Control-Allow-Headers",
+          "Origin, X-Requested-With, Content-Type, Accept"
+        );
+
         res.end("HTTP Server response");
       })
       .listen(

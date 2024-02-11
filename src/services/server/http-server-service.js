@@ -20,7 +20,7 @@ export default class HttpServerService {
 
     this.httpServer.use(express.json());
     this.httpServer.use(
-      cors({ origin: "http://localhost:5173", credentials: true })
+      cors({ origin: process.env.CORS_ORIGIN, credentials: true })
     );
 
     this.httpServer.use(this.checkAuth.bind(this));
